@@ -1,10 +1,10 @@
 <<<<<<< HEAD
-# SecVault
-Gestionnaire de secrets chiffres avec contrôle d'accès par rôles
+# SenPay
+Systeme de paiement mobile securise
 =======
-# 🔐 SecVault
+# 🔐 SenPay
 
-> Gestionnaire de secrets chiffré avec contrôle d'accès par rôles
+> Systeme de paiement mobile securise avec contrôle d'accès par rôles
 
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
