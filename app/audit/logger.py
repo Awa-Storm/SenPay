@@ -58,6 +58,8 @@ def compute_hmac(action, ts, user_id, amount, prev_hmac) -> str:
     # Calcule et retourne le HMAC-SHA256 en hexadécimal (64 caractères)
     return hmac.new(key, msg, hashlib.sha256).hexdigest()
 
+
+
 def get_genesis_hmac() -> str:
     """Calcule l'empreinte de départ de la chaîne d'audit
     
@@ -72,3 +74,52 @@ def get_genesis_hmac() -> str:
     # Calcule HMAC-SHA256 du mot "GENESIS" en bytes
     # C'est le seul endroit où prev_hmac ne vient pas d'une entrée réelle
     return hmac.new(key, b'GENESIS', hashlib.sha256).hexdigest()
+
+
+
+def log_action(conn, user_id, action, detail=None, amount=0.0):
+    """Enregistre une action dans le journal d'audit de façon infalsifiable
+    
+    Paramètres :
+        conn    → connexion SQLite active (passée depuis la route Flask)
+        user_id → identifiant de l'utilisateur qui effectue l'action
+        action  → nom de l'action ex: 'LOGIN_SUCCESS', 'LOGIN_FAIL', 'LOGOUT'
+        detail  → information complémentaire optionnelle ex: 'tentative 2/3'
+        amount  → montant concerné si transaction financière, sinon 0.0
+    """
+    
+    cursor = conn.cursor()
+    
+    # Récupère le HMAC de la dernière entrée du journal
+    # C'est lui qui deviendra le prev_hmac de la nouvelle entrée
+    cursor.execute(
+        "SELECT hmac FROM audit_log ORDER BY id DESC LIMIT 1"
+    )
+    row = cursor.fetchone()
+    
+    if row is None:
+        # Journal vide : c'est la toute première entrée
+        # On utilise GENESIS comme point de départ de la chaîne
+        prev_hmac = get_genesis_hmac()
+    else:
+        # Journal non vide : on chaîne avec la dernière empreinte
+        prev_hmac = row[0]
+    
+    # Horodatage UTC de l'action au moment exact de l'appel
+    from datetime import datetime, timezone
+    ts = datetime.now(timezone.utc).isoformat()
+    
+    # Calcule l'empreinte de cette nouvelle entrée
+    h = compute_hmac(action, ts, user_id, amount, prev_hmac)
+    
+    # Insère l'entrée dans la base de données
+    # prev_hmac est stocké pour permettre la vérification ultérieure
+    cursor.execute(
+        """INSERT INTO audit_log
+           (user_id, action, detail, amount, timestamp, hmac, prev_hmac)
+           VALUES (?, ?, ?, ?, ?, ?, ?)""",
+        (user_id, action, detail, amount, ts, h, prev_hmac)
+    )
+    
+    # Sauvegarde immédiate — aucune action ne doit être perdue
+    conn.commit()
