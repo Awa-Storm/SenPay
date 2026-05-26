@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>SenPay — Connexion</title>
+</head>
+<body>
+    <h1>SenPay</h1>
+    <h2>Connexion</h2>
+
+    <!-- Affiche le message d'erreur si présent -->
+    {% if error %}
+        <p style="color:red;">{{ error }}</p>
+    {% endif %}
+
+    <!-- action="" envoie le formulaire à la même route en POST -->
+    <form action="" method="POST">
+        <label for="phone">Numéro de téléphone</label><br>
+        <input type="text" id="phone" name="phone" required><br><br>
+
+        <label for="pin">Code PIN</label><br>
+        <input type="password" id="pin" name="pin" required><br><br>
+
+        <button type="submit">Se connecter</button>
+    </form>
+</body>
+</html>
