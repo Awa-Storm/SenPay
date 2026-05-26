@@ -57,3 +57,18 @@ def compute_hmac(action, ts, user_id, amount, prev_hmac) -> str:
     
     # Calcule et retourne le HMAC-SHA256 en hexadécimal (64 caractères)
     return hmac.new(key, msg, hashlib.sha256).hexdigest()
+
+def get_genesis_hmac() -> str:
+    """Calcule l'empreinte de départ de la chaîne d'audit
+    
+    C'est le prev_hmac de la toute première entrée du journal.
+    Toute la chaîne part de ce point fixe — si on le falsifie,
+    la vérification échoue immédiatement.
+    """
+    
+    # Récupère la clé audit depuis l'environnement
+    key = _get_audit_key()
+    
+    # Calcule HMAC-SHA256 du mot "GENESIS" en bytes
+    # C'est le seul endroit où prev_hmac ne vient pas d'une entrée réelle
+    return hmac.new(key, b'GENESIS', hashlib.sha256).hexdigest()
