@@ -1,5 +1,28 @@
-
-
-    {% block content %}{% endblock %}
-
-
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SenPay - Administration</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .badge-ok { color: green; font-weight: bold; }
+        .badge-err { color: red; font-weight: bold; }
+        nav { margin: 20px 0; }
+        nav a { margin-right: 15px; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>SenPay - Interface Administrateur</h1>
+        <hr>
+    </header>
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+    <footer>
+        <hr>
+        <p>SenPay - Sprint Alpha - ESP DIC2</p>
+    </footer>
+</body>
+</html>

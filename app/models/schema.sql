@@ -32,3 +32,28 @@ CREATE TABLE IF NOT EXISTS audit_log (
     hmac TEXT NOT NULL,
     prev_hmac TEXT
 );
+-- Table des transactions avec chaînage SHA-256
+CREATE TABLE IF NOT EXISTS transactions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    sender_id INTEGER NOT NULL REFERENCES users(id),
+    receiver_id INTEGER NOT NULL REFERENCES users(id),
+    amount REAL NOT NULL CHECK(amount > 0),
+    tx_type TEXT NOT NULL,
+    timestamp TEXT NOT NULL,
+    tx_hash TEXT NOT NULL UNIQUE,
+    prev_tx_hash TEXT,
+    created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now'))
+);
+
+-- Table du journal d'audit avec chaînage HMAC
+CREATE TABLE IF NOT EXISTS audit_log (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER REFERENCES users(id),
+    action TEXT NOT NULL,
+    detail TEXT,
+    amount REAL,
+    timestamp TEXT NOT NULL,
+    hmac TEXT NOT NULL,
+    prev_hmac TEXT,
+    created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now'))
+);
