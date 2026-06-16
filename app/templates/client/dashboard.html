@@ -1,0 +1,19 @@
+﻿{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <h1>🏠 Tableau de bord Client</h1>
+    
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-number">{{ balance }}</div>
+            <div class="stat-label">Solde (FCFA)</div>
+        </div>
+    </div>
+    
+    <div class="admin-nav">
+        <a href="/client/transfer">💰 Effectuer un transfert</a>
+        <a href="/client/history">📜 Historique</a>
+    </div>
+</div>
+{% endblock %}

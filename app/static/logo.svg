@@ -1,0 +1,5 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 60">
+  <rect width="200" height="60" rx="10" fill="#1a3e60"/>
+  <text x="15" y="40" font-family="Arial" font-size="28" font-weight="bold" fill="#ffffff">SenPay</text>
+  <text x="120" y="40" font-family="Arial" font-size="14" fill="#aad4f5">sécurisé</text>
+</svg>

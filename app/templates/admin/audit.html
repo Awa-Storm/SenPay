@@ -1,0 +1,55 @@
+﻿{% extends "base.html" %}
+
+{% block content %}
+<div class="card-modern">
+    <h1>📜 Journal d'audit</h1>
+    <p style="color: #666; margin-bottom: 20px;">Actions enregistrées avec HMAC-SHA256</p>
+
+    {% if entries %}
+    <div style="overflow-x: auto;">
+        <table class="table-clean">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Date/Heure</th>
+                    <th>Action</th>
+                    <th>Utilisateur</th>
+                    <th>Montant</th>
+                    <th>HMAC</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in entries %}
+                <tr>
+                    <td><strong>{{ entry.id }}</strong></td>
+                    <td>{{ entry.timestamp[:19] if entry.timestamp else '-' }}</td>
+                    <td><span style="background: #f0f0f0; padding: 2px 10px; border-radius: 12px;">{{ entry.action }}</span></td>
+                    <td>{{ entry.user_id or '-' }}</td>
+                    <td>{{ entry.amount or '-' }}</td>
+                    <td><code style="font-size: 12px;">{{ entry.hmac_short }}</code></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <div style="display: flex; justify-content: center; gap: 12px; margin-top: 25px;">
+        {% if page > 1 %}
+            <a href="?page={{ page - 1 }}" style="background: #FF6B00; color: white; padding: 8px 20px; border-radius: 30px; text-decoration: none;">◀ Précédent</a>
+        {% endif %}
+        <span style="padding: 8px 20px; background: #f0f0f0; border-radius: 30px;">Page {{ page }} / {{ total_pages }}</span>
+        {% if page < total_pages %}
+            <a href="?page={{ page + 1 }}" style="background: #FF6B00; color: white; padding: 8px 20px; border-radius: 30px; text-decoration: none;">Suivant ▶</a>
+        {% endif %}
+    </div>
+
+    {% else %}
+    <p style="text-align: center; color: #999; padding: 40px;">Aucune entrée dans le journal d'audit.</p>
+    {% endif %}
+
+    <div style="margin-top: 25px;">
+        <a href="/admin/dashboard" class="btn-secondary">← Retour au tableau de bord</a>
+    </div>
+</div>
+{% endblock %}
