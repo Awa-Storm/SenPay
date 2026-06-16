@@ -9,6 +9,8 @@ CREATE TABLE IF NOT EXISTS users (
     is_locked INTEGER DEFAULT 0,
     failed_attempts INTEGER DEFAULT 0,
     locked_until TEXT
+    force_pin_change INTEGER NOT NULL DEFAULT 0,  -- EF11 : changement PIN obligatoire
+    last_login      TEXT                           -- horodatage dernière connexion
 );
 
 CREATE TABLE IF NOT EXISTS transactions (
