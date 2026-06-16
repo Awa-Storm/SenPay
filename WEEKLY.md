@@ -50,6 +50,10 @@
 - Chiffrement des soldes (Salimata → Serigne)
 - Expiration session 30 min (Awa)
 - Transactions financières entre comptes
+
+
+
+
  
  # WEEKLY.md — Sprint Beta
 
