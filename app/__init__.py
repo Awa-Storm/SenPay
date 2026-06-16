@@ -10,4 +10,14 @@ def create_app():
     from app.admin.routes import admin_bp
     app.register_blueprint(auth_bp)
     app.register_blueprint(admin_bp)
+
+    import sqlite3
+    import logging
+    from app.audit.verifier import verify_audit_chain
+
+    conn = sqlite3.connect(DB_PATH)
+    valid, bad_id = verify_audit_chain(conn)
+    if not valid:
+        logging.critical(f"JOURNAL CORROMPU — id={bad_id}")
+    conn.close()
     return app
