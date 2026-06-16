@@ -1,0 +1,45 @@
+﻿{% extends "base.html" %}
+
+{% block content %}
+<div class="card-modern">
+    <h1>📜 Historique des transactions</h1>
+    <p style="color: #666; margin-bottom: 20px;">Dernières 50 transactions</p>
+
+    {% if transactions %}
+    <div style="overflow-x: auto;">
+        <table class="table-clean">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Montant</th>
+                    <th>Hash</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for tx in transactions %}
+                <tr>
+                    <td>{{ tx.timestamp[:16] }}</td>
+                    <td>
+                        {% if tx.sender_id == session.user_id %}
+                            <span style="color: #D32F2F;">➜ Envoi</span>
+                        {% else %}
+                            <span style="color: #00C853;">➜ Réception</span>
+                        {% endif %}
+                    </td>
+                    <td><strong>{{ tx.amount }} FCFA</strong></td>
+                    <td><code style="font-size: 12px;">{{ tx.tx_hash[:16] }}...</code></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p style="text-align: center; color: #999; padding: 40px;">Aucune transaction pour le moment.</p>
+    {% endif %}
+
+    <div style="margin-top: 25px;">
+        <a href="/client/dashboard" class="btn-secondary">← Retour au tableau de bord</a>
+    </div>
+</div>
+{% endblock %}

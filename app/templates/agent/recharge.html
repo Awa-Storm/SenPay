@@ -1,0 +1,33 @@
+﻿{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <h1>📱 Rechargement de compte client</h1>
+    
+    {% if message %}
+        <div style="background: #2ecc71; color: white; padding: 10px; border-radius: 8px; margin-bottom: 15px;">
+            ✅ {{ message }}
+        </div>
+    {% endif %}
+    
+    {% if error %}
+        <div style="background: #e74c3c; color: white; padding: 10px; border-radius: 8px; margin-bottom: 15px;">
+            ❌ {{ error }}
+        </div>
+    {% endif %}
+    
+    <form method="POST">
+        <label>Téléphone du client</label>
+        <input type="tel" name="client_phone" placeholder="771234568" required>
+        
+        <label>Montant (FCFA)</label>
+        <input type="number" name="amount" min="100" step="100" required>
+        
+        <button type="submit" class="btn-primary">Recharger</button>
+    </form>
+    
+    <div class="admin-nav" style="margin-top: 20px;">
+        <a href="/agent/dashboard">← Retour</a>
+    </div>
+</div>
+{% endblock %}

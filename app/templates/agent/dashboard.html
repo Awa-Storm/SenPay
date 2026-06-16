@@ -1,0 +1,18 @@
+﻿{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <h1>🏠 Tableau de bord Agent</h1>
+    
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-number">💰</div>
+            <div class="stat-label">Rechargement de comptes</div>
+        </div>
+    </div>
+    
+    <div class="admin-nav">
+        <a href="{{ url_for('agent.recharge') }}">📱 Recharger un client</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,37 @@
+﻿{% extends "base.html" %}
+
+{% block content %}
+<div class="card-modern">
+    <h1>📜 Historique des rechargements</h1>
+    <p style="color: #666; margin-bottom: 20px;">Rechargements effectués</p>
+
+    {% if recharges %}
+    <div style="overflow-x: auto;">
+        <table class="table-clean">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Client</th>
+                    <th>Montant</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in recharges %}
+                <tr>
+                    <td>{{ r.timestamp[:16] }}</td>
+                    <td>{{ r.receiver_id }}</td>
+                    <td><strong>{{ r.amount }} FCFA</strong></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p style="text-align: center; color: #999; padding: 40px;">Aucun rechargement effectué.</p>
+    {% endif %}
+
+    <div style="margin-top: 25px;">
+        <a href="/agent/dashboard" class="btn-secondary">← Retour au tableau de bord</a>
+    </div>
+</div>
+{% endblock %}

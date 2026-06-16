@@ -1,5 +1,40 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SenPay - Paiement Mobile Sécurisé</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Navbar -->
+        <nav class="glass-nav">
+            <div class="nav-brand">
+                <span class="logo-icon">💳</span>
+                <span class="logo-text">SenPay</span>
+                <span class="badge-secure">sécurisé</span>
+            </div>
+            {% if session.user_id %}
+            <div class="user-menu">
+                <span class="user-phone">📱 {{ session.phone or session.user_id }}</span>
+                <a href="{{ url_for('auth.logout') }}" class="btn-logout">Déconnexion</a>
+            </div>
+            {% endif %}
+        </nav>
 
+        <!-- Contenu principal -->
+        <main class="main-content">
+            {% block content %}{% endblock %}
+        </main>
 
-    {% block content %}{% endblock %}
-
-
+        <!-- Footer -->
+        <footer class="footer-glass">
+            <p>© 2026 SenPay · Paiement Mobile Sécurisé</p>
+            <p class="crypto-tag">🔐 HMAC‑SHA256 · AES‑256‑GCM · RBAC</p>
+            <p style="font-size: 12px; color: #7a8a9a; margin-top: 8px;">ESP · DGI · DIC2‑SSI · Projet DevSecOps</p>
+        </footer>
+    </div>
+</body>
+</html>
