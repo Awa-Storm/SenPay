@@ -1,16 +1,20 @@
-{% extends "base.html" %}
+﻿{% extends "base.html" %}
 
 {% block content %}
-<h1>Tableau de bord Admin</h1>
-
-<p>Comptes enregistrés : <strong>{{ nb_comptes }}</strong></p>
-
-<p>Intégrité transactions :
-  <span class="badge-ok">{{ statut_tx }}</span>
-</p>
-
-<nav>
-  <a href="/admin/audit">Journal d'audit</a> |
-  <a href="/admin/verify">Vérification intégrité</a>
-</nav>
+<div class="card">
+    <h1>🏠 Tableau de bord Administrateur</h1>
+    
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-number">{{ nb_comptes }}</div>
+            <div class="stat-label">Comptes enregistrés</div>
+        </div>
+    </div>
+    
+    <div class="admin-nav">
+        <a href="/admin/audit">📜 Journal d'audit</a>
+        <a href="/admin/verify">🔍 Vérification intégrité</a>
+        <a href="/admin/users">👥 Gestion des comptes</a>
+    </div>
+</div>
 {% endblock %}

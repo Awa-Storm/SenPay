@@ -1,13 +1,16 @@
-from app.transactions.tx import compute_tx_hash
+﻿from app.transactions.tx import compute_tx_hash
 
 def verify_tx_chain(conn):
-    """
+    '''
     Parcourt toutes les transactions et recalcule chaque hash.
     Retourne (True, None) si intègre, (False, id_corrompu) sinon.
-    """
+    '''
+    # Utiliser row_factory pour avoir des dictionnaires
+    conn.row_factory = lambda c, r: dict(zip([col[0] for col in c.description], r))
+    
     cursor = conn.execute(
-        "SELECT id, sender_id, receiver_id, amount, tx_type, timestamp, tx_hash, prev_tx_hash "
-        "FROM transactions ORDER BY id ASC"
+        'SELECT id, sender_id, receiver_id, amount, tx_type, timestamp, tx_hash, prev_tx_hash '
+        'FROM transactions ORDER BY id ASC'
     )
     transactions = cursor.fetchall()
 

@@ -67,7 +67,6 @@ def login():
     
     return render_template('login.html')
 
-
 @auth_bp.route('/logout')
 def logout():
     """Route de déconnexion — révoque le token en base et supprime le cookie"""
