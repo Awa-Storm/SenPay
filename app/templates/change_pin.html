@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SenPay — Changer mon PIN</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --orange: #FF6B00;
+            --orange-light: #FF8C33;
+            --teal: #00B8A9;
+            --teal-dark: #008F83;
+            --dark: #1A1A2E;
+            --text: #2D2D2D;
+            --muted: #888;
+            --error: #E53E3E;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            min-height: 100vh;
+            background: var(--dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .bg-circle {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.15;
+            animation: float 8s ease-in-out infinite;
+        }
+        .bg-circle-1 {
+            width: 500px; height: 500px;
+            background: var(--orange);
+            top: -200px; left: -150px;
+        }
+        .bg-circle-2 {
+            width: 350px; height: 350px;
+            background: var(--teal);
+            bottom: -100px; right: -100px;
+            animation-delay: 3s;
+        }
+        .bg-circle-3 {
+            width: 200px; height: 200px;
+            background: var(--orange-light);
+            bottom: 100px; left: 50px;
+            animation-delay: 5s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-30px); }
+        }
+
+        .card {
+            background: #FDF0E0;
+            border-radius: 28px;
+            width: 420px;
+            padding: 48px 40px 40px;
+            position: relative;
+            z-index: 10;
+            box-shadow: 0 32px 80px rgba(0,0,0,0.4);
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .logo-wrap {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 32px;
+        }
+        .logo-icon {
+            width: 52px; height: 52px;
+            background: linear-gradient(135deg, var(--orange), var(--orange-light));
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 800;
+            color: white;
+            letter-spacing: -1px;
+            box-shadow: 0 8px 20px rgba(255,107,0,0.35);
+        }
+        .logo-text { display: flex; flex-direction: column; }
+        .logo-name {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--dark);
+            letter-spacing: -0.5px;
+            line-height: 1;
+        }
+        .logo-sub {
+            font-size: 11px;
+            color: var(--muted);
+            font-weight: 500;
+            margin-top: 2px;
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--dark);
+            letter-spacing: -0.5px;
+            margin-bottom: 6px;
+        }
+        .subtitle {
+            font-size: 13px;
+            color: var(--muted);
+            margin-bottom: 28px;
+            line-height: 1.5;
+        }
+
+        /* Badge avertissement */
+        .warning-box {
+            background: #FFF8E6;
+            border: 1px solid #FFE099;
+            border-radius: 12px;
+            padding: 10px 14px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: #7A4F00;
+            font-weight: 500;
+        }
+
+        .error-box {
+            background: #FFF5F5;
+            border: 1px solid #FED7D7;
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: shake 0.4s ease;
+        }
+        @keyframes shake {
+            0%,100% { transform: translateX(0); }
+            20%,60% { transform: translateX(-6px); }
+            40%,80% { transform: translateX(6px); }
+        }
+        .error-icon {
+            width: 20px; height: 20px;
+            background: var(--error);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+            color: white;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .error-text { font-size: 13px; color: var(--error); font-weight: 500; }
+
+        .field { margin-bottom: 16px; }
+        .field label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 7px;
+        }
+        .input-wrap { position: relative; }
+        .input-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--muted);
+            font-size: 17px;
+            pointer-events: none;
+        }
+        .field input {
+            width: 100%;
+            padding: 13px 16px 13px 46px;
+            border: 2px solid #F0D5B0;
+            border-radius: 14px;
+            font-size: 15px;
+            font-family: inherit;
+            color: var(--text);
+            background: #FFF8EE;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+            font-weight: 500;
+        }
+        .field input:focus {
+            border-color: var(--orange);
+            background: #FFFDF9;
+            box-shadow: 0 0 0 4px rgba(255,107,0,0.12);
+        }
+        .field input::placeholder { color: #C0C0C0; font-weight: 400; }
+
+        /* Séparateur visuel */
+        .divider {
+            border: none;
+            border-top: 1.5px dashed #F0D5B0;
+            margin: 20px 0;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, var(--orange), var(--orange-light));
+            border: none;
+            border-radius: 14px;
+            color: white;
+            font-size: 16px;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            margin-top: 6px;
+            transition: transform 0.15s, box-shadow 0.15s;
+            box-shadow: 0 8px 24px rgba(255,107,0,0.35);
+            position: relative;
+            overflow: hidden;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(255,107,0,0.45);
+        }
+        .btn:active { transform: translateY(0); }
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 60%; height: 100%;
+            background: rgba(255,255,255,0.2);
+            transform: skewX(-20deg);
+            transition: left 0.4s;
+        }
+        .btn:hover::after { left: 150%; }
+
+        .security-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 20px;
+            padding: 10px;
+            background: #F0FDF9;
+            border-radius: 10px;
+            border: 1px solid #CCFBEE;
+        }
+        .security-dot {
+            width: 8px; height: 8px;
+            background: var(--teal);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%,100% { opacity:1; transform:scale(1); }
+            50% { opacity:0.5; transform:scale(0.8); }
+        }
+        .security-text { font-size: 12px; color: var(--teal-dark); font-weight: 600; }
+
+        .footer {
+            text-align: center;
+            margin-top: 18px;
+            font-size: 11px;
+            color: var(--muted);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-circle bg-circle-1"></div>
+    <div class="bg-circle bg-circle-2"></div>
+    <div class="bg-circle bg-circle-3"></div>
+
+    <div class="card">
+
+        <div class="logo-wrap">
+            <div class="logo-icon">SP</div>
+            <div class="logo-text">
+                <span class="logo-name">SenPay</span>
+                <span class="logo-sub">Paiement mobile sécurisé</span>
+            </div>
+        </div>
+
+        <h1 class="title">🔑 Changer mon PIN</h1>
+        <p class="subtitle">Choisissez un nouveau code PIN sécurisé.<br>Il remplacera immédiatement votre code actuel.</p>
+
+        <!-- Avertissement première connexion -->
+        <div class="warning-box">
+            ⚠️ Vous devez définir un nouveau PIN avant de continuer.
+        </div>
+
+        <!-- Message d'erreur Jinja2 -->
+        {% if error %}
+        <div class="error-box">
+            <div class="error-icon">!</div>
+            <span class="error-text">{{ error }}</span>
+        </div>
+        {% endif %}
+
+        <form action="" method="POST">
+
+            <div class="field">
+                <label for="old_pin">Ancien PIN</label>
+                <div class="input-wrap">
+                    <span class="input-icon">🔓</span>
+                    <input
+                        type="password"
+                        id="old_pin"
+                        name="old_pin"
+                        placeholder="Votre PIN actuel"
+                        required
+                        maxlength="6"
+                    >
+                </div>
+            </div>
+
+            <hr class="divider">
+
+            <div class="field">
+                <label for="new_pin">Nouveau PIN</label>
+                <div class="input-wrap">
+                    <span class="input-icon">🔒</span>
+                    <input
+                        type="password"
+                        id="new_pin"
+                        name="new_pin"
+                        placeholder="Nouveau code PIN"
+                        required
+                        maxlength="6"
+                    >
+                </div>
+            </div>
+
+            <div class="field">
+                <label for="confirm_pin">Confirmer le nouveau PIN</label>
+                <div class="input-wrap">
+                    <span class="input-icon">🔒</span>
+                    <input
+                        type="password"
+                        id="confirm_pin"
+                        name="confirm_pin"
+                        placeholder="Répétez le nouveau PIN"
+                        required
+                        maxlength="6"
+                    >
+                </div>
+            </div>
+
+            <button type="submit" class="btn">Confirmer le changement</button>
+
+        </form>
+
+        <div class="security-badge">
+            <div class="security-dot"></div>
+            <span class="security-text">PIN haché bcrypt coût 12 · Jamais stocké en clair</span>
+        </div>
+
+        <div class="footer">
+            ESP · DGI · DIC2-SSI · Sprint Beta 2025–2026
+        </div>
+
+    </div>
+
+</body>
+</html>
