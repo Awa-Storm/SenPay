@@ -57,3 +57,15 @@ CREATE TABLE IF NOT EXISTS audit_log (
     prev_hmac TEXT,
     created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now'))
 );
+
+
+-- Table des sessions actives — remplace les sessions Flask du Sprint Alpha
+-- Le token est la clé primaire : unique, impossible à deviner (32 octets CSPRNG)
+CREATE TABLE IF NOT EXISTS sessions (
+    token            TEXT PRIMARY KEY,
+    user_id          INTEGER NOT NULL REFERENCES users(id),
+    role             TEXT NOT NULL,
+    created_at       TEXT NOT NULL,
+    expires_at       TEXT NOT NULL,
+    force_pin_change INTEGER NOT NULL DEFAULT 0
+);
