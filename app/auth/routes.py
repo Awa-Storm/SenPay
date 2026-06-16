@@ -1,132 +1,146 @@
-import bcrypt
 import sqlite3
-from flask import Blueprint, request, redirect, url_for, session, render_template
+from flask import Blueprint, request, redirect, url_for, session, render_template, make_response
 from config import DB_PATH
-from app.auth.session_mgr import create_session, is_session_valid, destroy_session
+from app.auth.authenticator import authenticate, hash_pin, verify_pin
+from app.auth.session_mgr import create_session, validate_session, revoke_session
 from app.audit.logger import log_action
 
-# Blueprint : groupe toutes les routes d'authentification sous un même module
-# Flask l'enregistre dans create_app() côté Serigne
 auth_bp = Blueprint('auth', __name__)
 
 
 def get_db():
-    """Ouvre et retourne une connexion SQLite à la base de données SenPay"""
-    return sqlite3.connect(DB_PATH)
+    """Ouvre une connexion SQLite avec accès par nom de colonne"""
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row  # permet row['colonne'] au lieu de row[0]
+    return conn
 
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
-    """Route de connexion
-    
-    GET  → affiche le formulaire de connexion
-    POST → vérifie les identifiants et crée la session si corrects
-    """
+    """Route de connexion — GET affiche le formulaire, POST vérifie les identifiants"""
     
     if request.method == 'POST':
-        
-        # Récupère les champs du formulaire HTML
         phone = request.form.get('phone', '').strip()
         pin   = request.form.get('pin', '').strip()
         
         conn = get_db()
-        cur  = conn.cursor()
         
-        # Cherche l'utilisateur par son numéro de téléphone
-        cur.execute(
-            """SELECT id, pin_hash, role, is_locked, failed_attempts
-               FROM users WHERE phone=?""",
-            (phone,)
-        )
-        user = cur.fetchone()
+        # Délègue toute la logique d'authentification à authenticator.py
+        # (verrouillage, déverrouillage auto, compteur de tentatives)
+        user, error = authenticate(conn, phone, pin)
         
-        # Numéro introuvable dans la base
-        if not user:
-            conn.close()
-            return render_template('login.html', error="Compte introuvable.")
-        
-        user_id, pin_hash, role, is_locked, failed = user
-        
-        # Compte verrouillé après 3 échecs → accès refusé
-        if is_locked:
+        if error == 'locked':
+            log_action(conn, None, 'LOGIN_LOCKED', detail=phone)
             conn.close()
             return render_template('login.html',
-                error="Compte verrouille. Contactez l'administrateur.")
+                error="Compte verrouillé 15 min après 3 échecs.")
         
-        # Vérifie le PIN avec bcrypt
-        # Note : quand Salimata aura codé verify_pin(), remplace cette ligne par :
-        # from app.crypto.crypto import verify_pin
-        # if verify_pin(pin, pin_hash):
-        if bcrypt.checkpw(pin.encode(), pin_hash.encode()):
-            
-            # PIN correct : remet le compteur d'échecs à zéro
-            cur.execute(
-                "UPDATE users SET failed_attempts=0 WHERE id=?",
-                (user_id,)
-            )
-            conn.commit()
-            
-            # Crée la session Flask (jeton 32 octets + horodatage)
-            create_session(user_id, role)
-            
-            # Enregistre la connexion réussie dans le journal d'audit
-            log_action(conn, user_id, 'LOGIN_SUCCESS')
+        if error == 'invalid':
+            log_action(conn, None, 'LOGIN_FAIL', detail=phone)
             conn.close()
-            
-            # Redirige selon le rôle de l'utilisateur
-            if role == 'admin':
-                return redirect(url_for('admin.dashboard'))
-            return redirect(url_for('auth.login'))
+            return render_template('login.html',
+                error="Numéro ou PIN incorrect.")
         
+        # Connexion réussie
+        user_id = user[0]
+        role    = user[2]
+        force   = user[6]  # force_pin_change
+        
+        # Crée la session en base de données
+        token = create_session(conn, user_id, role, force_pin_change=force)
+        
+        # Enregistre dans le journal d'audit
+        log_action(conn, user_id, 'LOGIN_SUCCESS')
+        conn.close()
+        
+        # Place le token dans un cookie HTTP sécurisé
+        if force:
+            response = make_response(redirect(url_for('auth.change_pin')))
+        elif role == 'admin':
+            response = make_response(redirect(url_for('admin.dashboard')))
         else:
-            # PIN incorrect : incrémente le compteur d'échecs
-            failed += 1
-            
-            # Verrouille le compte si 3 échecs consécutifs (exigence EF02/OS-07)
-            locked = 1 if failed >= 3 else 0
-            
-            cur.execute(
-                "UPDATE users SET failed_attempts=?, is_locked=? WHERE id=?",
-                (failed, locked, user_id)
-            )
-            conn.commit()
-            
-            # Enregistre l'échec dans le journal d'audit
-            log_action(conn, user_id, 'LOGIN_FAIL',
-                detail=f"tentative {failed}/3")
-            conn.close()
-            
-            # Message d'erreur adapté selon si le compte vient d'être verrouillé
-            if locked:
-                msg = "Compte verrouille apres 3 echecs. Contactez l'administrateur."
-            else:
-                msg = f"PIN incorrect. Tentative {failed}/3."
-            
-            return render_template('login.html', error=msg)
+            response = make_response(redirect(url_for('auth.login')))
+        
+        # httponly=True → inaccessible depuis JavaScript (protection XSS)
+        response.set_cookie('session_token', token, httponly=True, samesite='Strict')
+        return response
     
-    # GET : affiche simplement le formulaire
     return render_template('login.html')
 
 
 @auth_bp.route('/logout')
 def logout():
-    """Route de déconnexion
+    """Route de déconnexion — révoque le token en base et supprime le cookie"""
     
-    Enregistre le logout dans le journal puis détruit la session.
-    Redirige vers /login.
-    """
+    token = request.cookies.get('session_token')
     
-    # Récupère l'identifiant avant de détruire la session
-    user_id = session.get('user_id')
-    
-    if user_id:
+    if token:
         conn = get_db()
-        # Enregistre la déconnexion dans le journal d'audit
-        log_action(conn, user_id, 'LOGOUT')
+        # Récupère user_id avant de révoquer pour le journal
+        row = conn.execute(
+            'SELECT user_id FROM sessions WHERE token=?', (token,)
+        ).fetchone()
+        if row:
+            log_action(conn, row['user_id'], 'LOGOUT')
+        # Supprime la session de la base — token inutilisable immédiatement
+        revoke_session(conn, token)
         conn.close()
     
-    # Détruit la session Flask (cookie inutilisable immédiatement)
-    destroy_session()
+    # Supprime le cookie côté client
+    response = make_response(redirect(url_for('auth.login')))
+    response.delete_cookie('session_token')
+    return response
+
+
+@auth_bp.route('/change-pin', methods=['GET', 'POST'])
+def change_pin():
+    """Route de changement de PIN — obligatoire à la première connexion (EF11)"""
     
-    # Redirige vers la page de connexion
-    return redirect(url_for('auth.login'))
+    token = request.cookies.get('session_token')
+    if not token:
+        return redirect(url_for('auth.login'))
+    
+    conn = get_db()
+    sess = validate_session(conn, token)
+    if not sess:
+        conn.close()
+        return redirect(url_for('auth.login'))
+    
+    if request.method == 'POST':
+        old_pin     = request.form.get('old_pin', '')
+        new_pin     = request.form.get('new_pin', '')
+        confirm_pin = request.form.get('confirm_pin', '')
+        
+        # Vérifie que les deux nouveaux PIN correspondent
+        if new_pin != confirm_pin:
+            conn.close()
+            return render_template('change_pin.html',
+                error="Les PIN ne correspondent pas.")
+        
+        # Récupère le hash actuel
+        user = conn.execute(
+            'SELECT pin_hash FROM users WHERE id=?', (sess['user_id'],)
+        ).fetchone()
+        
+        # Vérifie l'ancien PIN avant d'autoriser le changement
+        if not verify_pin(old_pin, user['pin_hash']):
+            conn.close()
+            return render_template('change_pin.html',
+                error="Ancien PIN incorrect.")
+        
+        # Hache le nouveau PIN et met à jour la base
+        new_hash = hash_pin(new_pin)
+        conn.execute(
+            'UPDATE users SET pin_hash=?, force_pin_change=0 WHERE id=?',
+            (new_hash, sess['user_id'])
+        )
+        conn.commit()
+        
+        # Enregistre dans le journal d'audit
+        log_action(conn, sess['user_id'], 'PIN_CHANGED')
+        conn.close()
+        
+        return redirect(url_for('auth.login'))
+    
+    conn.close()
+    return render_template('change_pin.html')
