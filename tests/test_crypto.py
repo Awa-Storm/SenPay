@@ -3,7 +3,7 @@ import sys
 import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-os.environ['SENPAY_MASTER_KEY'] = 'unesuperclesecretede32characterss'
+os.environ['SENPAY_MASTER_KEY'] = '7228a50ffb3ee0abb0c80b73f4fa3f792949b93261833099825ae08872fe8608'
 
 from app.crypto.aes import encrypt_balance, decrypt_balance
 from app.crypto.pin import hash_pin, verify_pin

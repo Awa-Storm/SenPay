@@ -1,82 +1,14 @@
-<<<<<<< HEAD
-import pytest
-import sys
-import os
-import sqlite3
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-os.environ['SENPAY_MASTER_KEY'] = 'unesuperclesecretede32characterss'
-
-from app.audit.logger import log_action, compute_hmac
-from app.audit.verifier import verify_audit_chain
-
-def create_test_db():
-    """Crée une base SQLite en mémoire avec la table audit_log."""
-    conn = sqlite3.connect(':memory:')
-    conn.execute('''
-        CREATE TABLE audit_log (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER,
-            action TEXT NOT NULL,
-            detail TEXT,
-            amount REAL,
-            timestamp TEXT NOT NULL,
-            hmac TEXT NOT NULL,
-            prev_hmac TEXT
-        )
-    ''')
-    conn.commit()
-    return conn
-
-def test_hmac_chain_valid():
-    """Une chaîne de 10 entrées intègres est validée."""
-    conn = create_test_db()
-    for i in range(10):
-        log_action(conn, user_id=i, action='LOGIN', detail='test', amount=0)
-    ok, bad_id = verify_audit_chain(conn)
-    assert ok == True
-    assert bad_id is None
-
-def test_hmac_chain_tampered():
-    """Altération d'une entrée — la vérification détecte la corruption."""
-    conn = create_test_db()
-    for i in range(5):
-        log_action(conn, user_id=i, action='LOGIN', detail='test', amount=0)
-    # Altérer l'entrée id=3
-    conn.execute("UPDATE audit_log SET action='HACK' WHERE id=3")
-    conn.commit()
-    ok, bad_id = verify_audit_chain(conn)
-    assert ok == False
-    assert bad_id == 3
-
-def test_first_entry_genesis():
-    """La première entrée est liée au GENESIS."""
-    conn = create_test_db()
-    log_action(conn, user_id=1, action='LOGIN', detail='test', amount=0)
-    row = conn.execute(
-        'SELECT prev_hmac FROM audit_log ORDER BY id ASC LIMIT 1'
-    ).fetchone()
-    genesis = compute_hmac('GENESIS', '0', 0, 0, '')
-    assert row[0] == genesis
-=======
 import os
 import sqlite3
 import pytest
 
-# Clé de test : 64 caractères hex = 32 octets
-# On la définit AVANT d'importer les modules qui en ont besoin
-os.environ['SENPAY_KEY'] = 'a' * 64
+os.environ.setdefault('SENPAY_KEY', 'a' * 64)
 
 from app.audit.logger import log_action, derive_audit_key, get_genesis_hmac
 from app.audit.verifier import verify_audit_chain
 
 
 def make_db():
-    """Crée une base SQLite en mémoire avec la table audit_log
-    
-    ':memory:' → la base est temporaire, elle disparaît après le test.
-    Chaque test repart d'une base propre et vide.
-    """
     conn = sqlite3.connect(':memory:')
     conn.executescript("""
         CREATE TABLE audit_log (
@@ -89,90 +21,43 @@ def make_db():
             hmac      TEXT NOT NULL,
             prev_hmac TEXT
         );
-        
-        CREATE TABLE users (
-            id             INTEGER PRIMARY KEY AUTOINCREMENT,
-            phone          TEXT UNIQUE NOT NULL,
-            pin_hash       TEXT NOT NULL,
-            role           TEXT NOT NULL DEFAULT 'client',
-            balance_enc    TEXT,
-            balance_iv     TEXT,
-            balance_tag    TEXT,
-            is_locked      INTEGER DEFAULT 0,
-            failed_attempts INTEGER DEFAULT 0,
-            locked_until   TEXT
-        );
     """)
     return conn
 
 
 def test_hmac_chain_valid():
-    """Test 1 : une chaîne de 100 entrées doit être considérée intacte"""
-    
+    """Chaîne de 100 entrées doit être intacte"""
     conn = make_db()
-    
-    # Crée 100 entrées dans le journal
     for i in range(100):
         log_action(conn, user_id=1, action=f'ACTION_{i}', amount=float(i))
-    
-    # Vérifie l'intégrité de toute la chaîne
     valid, bad_id = verify_audit_chain(conn)
-    
-    # Résultat attendu : chaîne valide, aucune entrée corrompue
     assert valid is True
     assert bad_id is None
-    
     conn.close()
 
 
 def test_hmac_chain_tampered():
-    """Test 2 : modifier une entrée doit être immédiatement détecté"""
-    
+    """Modification d'une entrée doit être détectée"""
     conn = make_db()
-    
-    # Crée 60 entrées normales
     for i in range(60):
         log_action(conn, user_id=1, action=f'ACTION_{i}', amount=float(i))
-    
-    # Falsifie l'entrée #50 : change le montant directement en base
-    # C'est ce qu'un attaquant ferait pour dissimuler une transaction
     conn.execute("UPDATE audit_log SET amount=9999.0 WHERE id=50")
     conn.commit()
-    
-    # Vérifie l'intégrité : doit détecter la falsification
     valid, bad_id = verify_audit_chain(conn)
-    
-    # Résultat attendu : chaîne invalide, id de l'entrée corrompue retourné
     assert valid is False
     assert bad_id is not None
-    
     conn.close()
 
 
 def test_first_entry_genesis():
-    """Test 3 : le prev_hmac de la première entrée doit être GENESIS"""
-    
-    import hmac
-    import hashlib
-    
+    """Le prev_hmac de la première entrée doit être GENESIS"""
+    import hmac, hashlib
     conn = make_db()
-    
-    # Crée une seule entrée dans le journal vide
     log_action(conn, user_id=1, action='LOGIN_SUCCESS')
-    
-    # Récupère le prev_hmac de la première entrée
     cur = conn.cursor()
-    cur.execute(
-        "SELECT prev_hmac FROM audit_log ORDER BY id ASC LIMIT 1"
-    )
+    cur.execute("SELECT prev_hmac FROM audit_log ORDER BY id ASC LIMIT 1")
     row = cur.fetchone()
-    
-    # Recalcule GENESIS indépendamment
     key = derive_audit_key(os.environ['SENPAY_KEY'])
-    expected_genesis = hmac.new(key, b'GENESIS', hashlib.sha256).hexdigest()
-    
-    # Le prev_hmac stocké doit correspondre exactement à GENESIS
-    assert row[0] == expected_genesis
-    
+    genesis = hmac.new(key, b'GENESIS', hashlib.sha256).hexdigest()
+    assert row[0] == genesis
     conn.close()
->>>>>>> origin/main
