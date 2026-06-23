@@ -1,18 +1,24 @@
 ﻿{% extends "base.html" %}
-
 {% block content %}
-<div class="card">
+<div class="card-modern">
     <h1>🏠 Tableau de bord Agent</h1>
-    
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-number">💰</div>
-            <div class="stat-label">Rechargement de comptes</div>
-        </div>
-    </div>
-    
-    <div class="admin-nav">
-        <a href="{{ url_for('agent.recharge') }}">📱 Recharger un client</a>
-    </div>
+</div>
+
+<div class="menu-grid">
+    <a href="{{ url_for('agent.recharge') }}" class="menu-card">
+        <div class="menu-icon">📲</div>
+        <div class="menu-title">Recharger un client</div>
+        <div class="menu-desc">Créditer le compte d'un client existant</div>
+    </a>
+    <a href="{{ url_for('agent.register_client') }}" class="menu-card">
+        <div class="menu-icon">👤</div>
+        <div class="menu-title">Créer un compte client</div>
+        <div class="menu-desc">Enregistrer un nouveau client SenPay</div>
+    </a>
+    <a href="{{ url_for('agent.history') }}" class="menu-card">
+        <div class="menu-icon">📋</div>
+        <div class="menu-title">Historique</div>
+        <div class="menu-desc">Consulter mes opérations de recharge</div>
+    </a>
 </div>
 {% endblock %}

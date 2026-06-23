@@ -1,17 +1,17 @@
-import os
+﻿import os
+from dotenv import load_dotenv
 
-# Variables directes pour les imports directs (routes.py, logger.py...)
-SECRET_KEY = os.environ.get('SECRET_KEY', 'fallback_dev_key')
-MASTER_KEY  = os.environ.get('SENPAY_KEY', 'test_master_key_32_bytes_1111111111')
-DB_PATH     = os.environ.get('DB_PATH', 'senpay.db')
+load_dotenv()
 
-# Classe Config pour Flask 
 class Config:
-    SECRET_KEY = os.environ.get('SECRET_KEY', 'fallback_dev_key')
-    MASTER_KEY = os.environ.get('SENPAY_KEY', 'test_master_key_32_bytes_1111111111')
+    SECRET_KEY = os.environ.get('SECRET_KEY', 'dev_secret_key_123456')
+    MASTER_KEY = os.environ.get('SENPAY_MASTER_KEY')
     DB_PATH = os.environ.get('DB_PATH', 'senpay.db')
+    SESSION_PERMANENT = True
+    PERMANENT_SESSION_LIFETIME = 60  # 60 secondes pour le test
 
-# Pour compatibilité avec les imports directs 
-DB_PATH = Config.DB_PATH
-SECRET_KEY = Config.SECRET_KEY
-MASTER_KEY = Config.MASTER_KEY
+if not Config.MASTER_KEY:
+    raise RuntimeError(
+        "SENPAY_MASTER_KEY manquante. Vérifie que le fichier .env existe "
+        "et contient SENPAY_MASTER_KEY=<clé hexadécimale>."
+    )

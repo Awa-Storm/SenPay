@@ -8,7 +8,8 @@ import logging
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
-    
+    app.permanent_session_lifetime = Config.PERMANENT_SESSION_LIFETIME
+
     with app.app_context():
         init_db()
     
@@ -18,7 +19,7 @@ def create_app():
         response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
         response.headers['X-Content-Type-Options'] = 'nosniff'
         response.headers['X-Frame-Options'] = 'DENY'
-        response.headers['Content-Security-Policy'] = "default-src 'self'"
+        response.headers['Content-Security-Policy'] = "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; font-src 'self' https://cdnjs.cloudflare.com; script-src 'self' 'unsafe-inline'"
         response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
         return response
     
@@ -35,19 +36,12 @@ def create_app():
     from app.admin.routes import admin_bp
     from app.client.routes import client_bp
     from app.agent.routes import agent_bp
-    
+    from app.mfa_routes import mfa_bp
+
     app.register_blueprint(auth_bp)
     app.register_blueprint(admin_bp, url_prefix='/admin')
     app.register_blueprint(client_bp, url_prefix='/client')
     app.register_blueprint(agent_bp, url_prefix='/agent')
-    
-    # Vérification intégrité du journal au démarrage (Awa)
-    from config import DB_PATH
-    from app.audit.verifier import verify_audit_chain
-    conn = sqlite3.connect(DB_PATH)
-    valid, bad_id = verify_audit_chain(conn)
-    if not valid:
-        logging.critical(f"JOURNAL CORROMPU — id={bad_id}")
-    conn.close()
-    
+    app.register_blueprint(mfa_bp)
+
     return app

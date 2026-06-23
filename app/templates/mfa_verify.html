@@ -1,0 +1,29 @@
+﻿{% extends "base.html" %}
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <div style="font-size: 48px; text-align: center;">🔑</div>
+        <h1 style="text-align: center; font-size: 22px; font-weight: 600; color: #1a1a2e; margin-top: 6px;">Vérification MFA</h1>
+        <p style="text-align: center; color: #8e8e93; font-size: 14px; margin-bottom: 24px;">Entrez le code à 6 chiffres généré par votre application</p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div style="background: {% if category == 'success' %}#e8f5e9{% elif category == 'warning' %}#fff4e5{% else %}#fee2e2{% endif %}; padding: 10px; border-radius: 10px; margin-bottom: 16px; font-size: 13px; color: {% if category == 'success' %}#2e7d32{% elif category == 'warning' %}#b45309{% else %}#b91c1c{% endif %}; text-align: center;">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST">
+            <input type="text" name="code" placeholder="🔢 Code à 6 chiffres" maxlength="6" inputmode="numeric" pattern="[0-9]{6}" autocomplete="one-time-code" required>
+            <button type="submit" class="btn-primary">✅ Vérifier</button>
+        </form>
+
+        <div style="margin-top: 20px; text-align: center; font-size: 13px; color: #8e8e93;">
+            ⏱️ Le code expire toutes les 30 secondes
+        </div>
+    </div>
+</div>
+{% endblock %}

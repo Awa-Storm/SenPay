@@ -1,0 +1,35 @@
+﻿{% extends "base.html" %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <div style="font-size: 48px; text-align: center;">👑</div>
+        <h1 style="text-align: center; font-size: 26px; font-weight: 600; color: #1a1a2e; margin-top: 6px;">Créer un compte</h1>
+        <p style="text-align: center; color: #8e8e93; font-size: 14px; margin-bottom: 24px;">L'admin crée un compte pour un nouvel utilisateur</p>
+
+        {% if error %}
+            <div style="background: #fee2e2; padding: 10px; border-radius: 10px; margin-bottom: 16px; font-size: 13px; color: #b91c1c; text-align: center;">
+                ❌ {{ error }}
+            </div>
+        {% endif %}
+
+        <form method="POST">
+            <input type="tel" name="phone" placeholder="📱 Téléphone (9 chiffres)" required>
+            <input type="password" name="pin" placeholder="🔑 PIN (min 4 chiffres)" required>
+            <input type="password" name="confirm_pin" placeholder="✅ Confirmer le PIN" required>
+
+            <select name="role" style="width: 100%; padding: 12px 16px; margin: 6px 0; border: 1.5px solid #e5e7eb; border-radius: 30px; font-size: 14px; background: white; color: #1a1a2e; appearance: none;">
+                <option value="client">Client</option>
+                <option value="agent">Agent</option>
+                <option value="admin">Admin</option>
+            </select>
+
+            <button type="submit" class="btn-primary">Créer le compte →</button>
+        </form>
+
+        <div style="margin-top: 20px; text-align: center; font-size: 13px; color: #8e8e93;">
+            <a href="{{ url_for('admin.users') }}" style="color: #FF6B00; font-weight: 600; text-decoration: none;">← Retour à la liste des comptes</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

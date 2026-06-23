@@ -1,33 +1,33 @@
 ﻿{% extends "base.html" %}
-
 {% block content %}
-<div class="card">
-    <h1>💰 Transfert d'argent</h1>
-    
+<div class="auth-wrapper">
+  <div class="auth-card" style="max-width: 420px;">
+
+    <span class="icon">💸</span>
+    <h1>Transfert</h1>
+    <p class="sub">Envoyez de l'argent en quelques secondes</p>
+
     {% if message %}
-        <div style="background: #2ecc71; color: white; padding: 10px; border-radius: 8px; margin-bottom: 15px;">
-            {{ message }}
-        </div>
-    {% endif %}
-    
-    {% if error %}
-        <div style="background: #e74c3c; color: white; padding: 10px; border-radius: 8px; margin-bottom: 15px;">
-            ❌ {{ error }}
-        </div>
-    {% endif %}
-    
-    <form method="POST">
-        <label>Téléphone destinataire</label>
-        <input type="tel" name="receiver_phone" placeholder="771234567" required>
-        
-        <label>Montant (FCFA)</label>
-        <input type="number" name="amount" min="100" max="500000" step="100" required>
-        
-        <button type="submit" class="btn-primary">Envoyer</button>
-    </form>
-    
-    <div class="admin-nav" style="margin-top: 20px;">
-        <a href="/client/dashboard">← Retour</a>
+    <div style="background:#d1fae5;color:#065f46;border:1px solid #6ee7b7;border-radius:12px;padding:12px 16px;font-size:13px;font-weight:600;margin-bottom:16px;">
+      ✅ {{ message }}
     </div>
+    {% endif %}
+    {% if error %}
+    <div style="background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;border-radius:12px;padding:12px 16px;font-size:13px;font-weight:600;margin-bottom:16px;">
+      ❌ {{ error }}
+    </div>
+    {% endif %}
+
+    <form method="POST" style="width:100%;">
+      <input type="tel" name="receiver_phone" placeholder="📱 Téléphone destinataire" required>
+      <input type="number" name="amount" min="100" max="500000" step="100" placeholder="💵 Montant (FCFA)" required>
+      <button type="submit" class="btn-primary" style="width:100%;margin-top:10px;">Envoyer →</button>
+    </form>
+
+    <div class="footer-links" style="margin-top:18px;">
+      <a href="{{ url_for('client.dashboard') }}">← Retour au tableau de bord</a>
+    </div>
+
+  </div>
 </div>
 {% endblock %}

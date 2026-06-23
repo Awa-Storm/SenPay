@@ -4,37 +4,53 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SenPay - Paiement Mobile Sécurisé</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    {% block styles %}{% endblock %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
+    <div class="bg-blobs">
+      <div class="blob blob-1"></div>
+      <div class="blob blob-2"></div>
+      <div class="blob blob-3"></div>
+      <div class="blob blob-4"></div>
+    </div>
     <div class="app-container">
         <!-- Navbar -->
-        <nav class="glass-nav">
-            <div class="nav-brand">
-                <span class="logo-icon">💳</span>
-                <span class="logo-text">SenPay</span>
-                <span class="badge-secure">sécurisé</span>
+        <nav class="navbar">
+            <div class="logo">
+                <span style="font-size: 26px; line-height: 1;">📱</span>
+                <div style="display: flex; flex-direction: column; line-height: 1.15;">
+                    <span>SenPay</span>
+                    <small style="font-size: 11px; font-weight: 500; color: #9aa1ac; -webkit-text-fill-color: #9aa1ac;">Paiement mobile sécurisé</small>
+                </div>
             </div>
-            {% if session.user_id %}
-            <div class="user-menu">
-                <span class="user-phone">📱 {{ session.phone or session.user_id }}</span>
-                <a href="{{ url_for('auth.logout') }}" class="btn-logout">Déconnexion</a>
+            <div class="navbar-right">
+                {% if session.user_id %}
+                    <span><i class="fas fa-user-circle"></i> {{ session.phone or session.user_id }}</span>
+                    <a href="{{ url_for('auth.logout') }}" class="btn-logout"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
+                {% endif %}
             </div>
-            {% endif %}
         </nav>
 
-        <!-- Contenu principal -->
-        <main class="main-content">
+        <!-- Contenu -->
+        <main>
             {% block content %}{% endblock %}
         </main>
 
         <!-- Footer -->
-        <footer class="footer-glass">
+        <footer class="footer">
             <p>© 2026 SenPay · Paiement Mobile Sécurisé</p>
-            <p class="crypto-tag">🔐 HMAC‑SHA256 · AES‑256‑GCM · RBAC</p>
-            <p style="font-size: 12px; color: #7a8a9a; margin-top: 8px;">ESP · DGI · DIC2‑SSI · Projet DevSecOps</p>
+            <p style="font-size: 12px; margin-top: 4px; opacity: 0.6;">
+                <i class="fas fa-lock"></i> HMAC-SHA256 · AES-256-GCM · RBAC
+            </p>
         </footer>
     </div>
 </body>
 </html>
+
+
+
+
+
+

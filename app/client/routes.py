@@ -11,17 +11,16 @@ client_bp = Blueprint('client', __name__, url_prefix='/client')
 def dashboard():
     conn = get_db()
     user = conn.execute(
-        'SELECT id, phone, balance_enc, balance_iv, balance_tag FROM users WHERE id = ?',
+        'SELECT id, phone, balance_enc, balance_iv, balance_tag, mfa_secret FROM users WHERE id = ?',
         (session['user_id'],)
     ).fetchone()
     conn.close()
-    
     try:
         balance = decrypt_balance(user['balance_enc'], user['balance_iv'], user['balance_tag'])
     except Exception as e:
         balance = 0.0
-    
-    return render_template('client/dashboard.html', balance=balance)
+    mfa_active = bool(user['mfa_secret'])
+    return render_template('client/dashboard.html', balance=balance, mfa_active=mfa_active)
 
 @client_bp.route('/transfer', methods=['GET', 'POST'])
 @require_role('client')
@@ -29,16 +28,13 @@ def transfer():
     if request.method == 'POST':
         receiver_phone = request.form.get('receiver_phone')
         amount = float(request.form.get('amount', 0))
-        
         conn = get_db()
         success, result = execute_transfer(conn, session['user_id'], receiver_phone, amount)
         conn.close()
-        
         if success:
             return render_template('client/transfer.html', message=f'Transfert reussi ! Hash: {result[:16]}...')
         else:
             return render_template('client/transfer.html', error=result)
-    
     return render_template('client/transfer.html')
 
 @client_bp.route('/history')
