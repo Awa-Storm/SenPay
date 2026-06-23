@@ -1,19 +1,130 @@
 ﻿{% extends "base.html" %}
 
+{% block styles %}
+<style>
+.bal-card {
+  background: linear-gradient(135deg, #0e8fa8 0%, #1fd6c1 100%);
+  border-radius: 20px;
+  padding: 32px 28px;
+  margin-bottom: 24px;
+  text-align: center;
+}
+.bal-ico-wrap {
+  width: 64px;
+  height: 64px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  margin: 0 auto 16px auto;
+}
+.bal-lbl {
+  font-size: 12px;
+  color: rgba(255,255,255,0.75);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+}
+.bal-amt {
+  font-size: 38px;
+  font-weight: 800;
+  color: white;
+  line-height: 1;
+  letter-spacing: -1px;
+  margin-bottom: 16px;
+}
+.bal-amt small {
+  font-size: 16px;
+  font-weight: 500;
+  opacity: 0.8;
+  margin-left: 4px;
+}
+.status-dot {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(255,255,255,0.2);
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 16px;
+  border-radius: 30px;
+  border: 1px solid rgba(255,255,255,0.35);
+}
+.status-dot::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  background: #a7f3d0;
+  border-radius: 50%;
+  display: inline-block;
+}
+.sec-lbl {
+  font-size: 11px;
+  font-weight: 700;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="card">
-    <h1>🏠 Tableau de bord Client</h1>
-    
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-number">{{ balance }}</div>
-            <div class="stat-label">Solde (FCFA)</div>
-        </div>
+<div class="card-modern">
+
+  <h1>🏠 Tableau de bord</h1>
+  <p style="color:#6b7280;font-size:14px;margin-top:-10px;margin-bottom:22px;">Bienvenue sur votre espace SenPay</p>
+
+  <div class="bal-card">
+    <div class="bal-ico-wrap">💰</div>
+    <div class="bal-lbl">Solde disponible</div>
+    <div class="bal-amt">{{ balance | int }}<small>FCFA</small></div>
+    <div class="status-dot">Compte actif</div>
+  </div>
+
+  <div class="sec-lbl">⚡ Actions rapides</div>
+  <div class="menu-grid" style="margin-bottom:24px;">
+    <a href="{{ url_for('client.transfer') }}" class="menu-card">
+      <div class="menu-icon">💸</div>
+      <div class="menu-title">Effectuer un transfert</div>
+      <div class="menu-desc">Envoyer de l'argent à un autre compte</div>
+    </a>
+    <a href="{{ url_for('client.history') }}" class="menu-card">
+      <div class="menu-icon">📜</div>
+      <div class="menu-title">Historique</div>
+      <div class="menu-desc">Voir toutes vos transactions</div>
+    </a>
+  </div>
+
+  <div style="border-top:1px solid #e5e7eb;padding-top:20px;">
+    <div class="sec-lbl">🔒 Double authentification</div>
+    <div class="menu-grid">
+      {% if not mfa_active %}
+      <a href="{{ url_for('mfa.setup') }}" class="menu-card" style="border-left:4px solid #f59e0b;background:#fffbeb;">
+        <div class="menu-icon">🔐</div>
+        <div class="menu-title" style="color:#92400e;">Activer le MFA</div>
+        <div class="menu-desc" style="color:#b45309;">Votre compte n'est pas encore protégé</div>
+      </a>
+      {% else %}
+      <a href="{{ url_for('mfa.setup') }}" class="menu-card" style="border-left:4px solid #14b8c4;background:#f0fdfb;">
+        <div class="menu-icon">✅</div>
+        <div class="menu-title" style="color:#0e8fa8;">MFA activé</div>
+        <div class="menu-desc" style="color:#0e8fa8;">Votre compte est protégé</div>
+      </a>
+      <a href="{{ url_for('mfa.disable') }}" class="menu-card" style="border-left:4px solid #e74c3c;background:#fff5f5;">
+        <div class="menu-icon">🔓</div>
+        <div class="menu-title" style="color:#c0392b;">Désactiver le MFA</div>
+        <div class="menu-desc" style="color:#e74c3c;">Supprimer la double authentification</div>
+      </a>
+      {% endif %}
     </div>
-    
-    <div class="admin-nav">
-        <a href="/client/transfer">💰 Effectuer un transfert</a>
-        <a href="/client/history">📜 Historique</a>
-    </div>
+  </div>
+
 </div>
 {% endblock %}

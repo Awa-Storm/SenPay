@@ -1,0 +1,27 @@
+﻿{% extends "base.html" %}
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <div style="font-size: 48px; text-align: center;">📝</div>
+        <h1 style="text-align: center; font-size: 28px; font-weight: 600; color: #1a1a2e; margin-top: 6px;">Créer un compte client</h1>
+        <p style="text-align: center; color: #8e8e93; font-size: 14px; margin-bottom: 24px;">Rejoignez SenPay en toute sécurité</p>
+        {% if error %}
+            <div style="background: #fee2e2; padding: 10px; border-radius: 10px; margin-bottom: 16px; font-size: 13px; color: #b91c1c; text-align: center;">
+                ❌ {{ error }}
+            </div>
+        {% endif %}
+        <form method="POST">
+            <input type="tel" name="phone" placeholder="📱 Téléphone (9 chiffres)" required>
+            <input type="password" name="pin" placeholder="🔑 PIN (min 4 chiffres)" required>
+            <input type="password" name="confirm_pin" placeholder="✅ Confirmer le PIN" required>
+            <button type="submit" class="btn-primary">Créer mon compte →</button>
+        </form>
+        <div style="margin-top: 20px; text-align: center; font-size: 13px; color: #8e8e93;">
+            <p>🔒 PIN haché avec bcrypt</p>
+            <p style="margin-top: 6px;">
+                Déjà un compte ? <a href="{{ url_for('auth.login') }}" style="color: #0e8fa8; font-weight: 600; text-decoration: none;">Se connecter</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

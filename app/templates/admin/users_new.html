@@ -1,0 +1,68 @@
+﻿{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+        <div>
+            <h1 style="font-size: 22px; color: #1a1a2e; margin-bottom: 4px;">👥 Gestion des comptes</h1>
+            <p style="color: var(--gray); font-size: 14px;">Liste des utilisateurs enregistrés</p>
+        </div>
+        <a href="{{ url_for('admin.register_user') }}" class="btn-primary">➕ Créer un compte</a>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Téléphone</th>
+                    <th>Rôle</th>
+                    <th>Statut</th>
+                    <th>Force PIN</th>
+                    <th style="text-align: center;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in users %}
+                <tr>
+                    <td>{{ u.id }}</td>
+                    <td>{{ u.phone }}</td>
+                    <td><span class="badge-role {{ u.role }}">{{ u.role }}</span></td>
+                    <td>
+                        {% if u.is_locked %}
+                            <span class="status-pill danger">⛔ Bloqué</span>
+                        {% else %}
+                            <span class="status-pill ok">✓ Actif</span>
+                        {% endif %}
+                    </td>
+                    <td>{% if u.force_pin_change %}⚠️ Oui{% else %}❌ Non{% endif %}</td>
+                    <td style="text-align: center;">
+                        <div style="display: flex; gap: 6px; justify-content: center; flex-wrap: wrap;">
+                            <form method="POST" action="{{ url_for('admin.force_pin_change', user_id=u.id) }}" style="display:inline;">
+                                <button type="submit" class="btn-action btn-pin">🔑 PIN</button>
+                            </form>
+                            {% if u.id != session.user_id %}
+                                <form method="POST" action="{{ url_for('admin.toggle_block', user_id=u.id) }}" style="display:inline;">
+                                    {% if u.is_locked %}
+                                        <button type="submit" class="btn-action btn-unblock">✅ Débloquer</button>
+                                    {% else %}
+                                        <button type="submit" class="btn-action btn-block">🚫 Bloquer</button>
+                                    {% endif %}
+                                </form>
+                                <form method="POST" action="{{ url_for('admin.delete_user', user_id=u.id) }}" style="display:inline;" onsubmit="return confirm('Supprimer ce compte ?');">
+                                    <button type="submit" class="btn-action btn-delete">🗑️ Supprimer</button>
+                                </form>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div style="margin-top: 20px;">
+        <a href="{{ url_for('admin.dashboard') }}" style="color: #0e8fa8; font-weight: 600; text-decoration: none; font-size: 14px;">← Retour</a>
+    </div>
+</div>
+{% endblock %}

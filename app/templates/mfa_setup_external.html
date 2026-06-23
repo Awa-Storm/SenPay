@@ -1,0 +1,41 @@
+﻿{% extends "base.html" %}
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-card" style="max-width: 460px;">
+        <div style="font-size: 48px; text-align: center;">🔐</div>
+        <h1 style="text-align: center; font-size: 22px; font-weight: 600; color: #1a1a2e; margin-top: 6px;">Double authentification</h1>
+        <p style="text-align: center; color: #8e8e93; font-size: 14px; margin-bottom: 20px;">Protégez votre compte avec une couche de sécurité supplémentaire</p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div style="background: {% if category == 'success' %}#e8f5e9{% elif category == 'warning' %}#fff4e5{% else %}#fee2e2{% endif %}; padding: 10px; border-radius: 10px; margin-bottom: 16px; font-size: 13px; color: {% if category == 'success' %}#2e7d32{% elif category == 'warning' %}#b45309{% else %}#b91c1c{% endif %}; text-align: center;">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <p style="color: #595959; font-size: 13px; text-align: center; margin-bottom: 16px; line-height: 1.6;">
+            1. Installez <strong>Google Authenticator</strong> ou une app compatible<br>
+            2. Scannez le QR Code ci-dessous<br>
+            3. Entrez le code à 6 chiffres pour valider
+        </p>
+
+        <div style="background: #f3f4f6; padding: 16px; border-radius: 20px; text-align: center; margin-bottom: 16px;">
+            <img src="{{ qr_url }}" alt="QR Code MFA" style="width: 180px; height: 180px; display: block; margin: 0 auto; border-radius: 8px;">
+        </div>
+
+        <p style="font-size: 13px; color: #8e8e93; text-align: center; margin-bottom: 20px;">
+            Clé secrète :<br>
+            <strong style="background: #f3f4f6; padding: 4px 10px; border-radius: 8px; font-family: Consolas, monospace; font-size: 13px; display: inline-block; margin-top: 6px;">{{ secret }}</strong>
+        </p>
+
+        <a href="{{ url_for('mfa.verify') }}" class="btn-primary" style="display: block; text-align: center;">✅ J'ai scanné, continuer</a>
+
+        <div style="margin-top: 18px; text-align: center; font-size: 12px; color: #9aa1ac;">
+            🔒 Vos données sont chiffrées · Conforme aux standards de sécurité
+        </div>
+    </div>
+</div>
+{% endblock %}

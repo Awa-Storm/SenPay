@@ -1,20 +1,35 @@
 ﻿{% extends "base.html" %}
-
 {% block content %}
-<div class="card">
+<div class="card-modern">
     <h1>🏠 Tableau de bord Administrateur</h1>
-    
     <div class="stats-grid">
         <div class="stat-card">
             <div class="stat-number">{{ nb_comptes }}</div>
             <div class="stat-label">Comptes enregistrés</div>
         </div>
     </div>
-    
-    <div class="admin-nav">
-        <a href="/admin/audit">📜 Journal d'audit</a>
-        <a href="/admin/verify">🔍 Vérification intégrité</a>
-        <a href="/admin/users">👥 Gestion des comptes</a>
-    </div>
+</div>
+
+<div class="menu-grid" style="margin-top: 20px;">
+    <a href="{{ url_for('admin.users') }}" class="menu-card">
+        <div class="menu-icon">👥</div>
+        <div class="menu-title">Gestion des comptes</div>
+        <div class="menu-desc">Créer, bloquer ou supprimer des utilisateurs</div>
+    </a>
+    <a href="{{ url_for('admin.audit') }}" class="menu-card">
+        <div class="menu-icon">📜</div>
+        <div class="menu-title">Journal d'audit</div>
+        <div class="menu-desc">Historique des actions signées HMAC-SHA256</div>
+    </a>
+    <a href="{{ url_for('admin.verify') }}" class="menu-card">
+        <div class="menu-icon">🔍</div>
+        <div class="menu-title">Vérification intégrité</div>
+        <div class="menu-desc">Contrôler l'état des chaînes de sécurité</div>
+    </a>
+    <a href="{{ url_for('admin.register_user') }}" class="menu-card">
+        <div class="menu-icon">🆕</div>
+        <div class="menu-title">Créer un compte</div>
+        <div class="menu-desc">Ajouter un agent ou un administrateur</div>
+    </a>
 </div>
 {% endblock %}

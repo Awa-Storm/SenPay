@@ -1,0 +1,14 @@
+﻿{% extends "base.html" %}
+{% block content %}
+<div class="card-modern" style="max-width: 480px; margin: auto; text-align: center; padding: 2rem;">
+  <div style="font-size: 48px; margin-bottom: 1rem;">⚠️</div>
+  <h2 style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">Désactiver la double authentification ?</h2>
+  <p style="color: #888; font-size: 14px; margin-bottom: 2rem;">Cette action supprime la protection supplémentaire de votre compte. Vous pourrez la réactiver à tout moment.</p>
+  <form method="POST">
+    <button type="submit" style="background: #c0392b; color: white; border: none; border-radius: 30px; padding: 12px 32px; font-size: 15px; font-weight: 600; cursor: pointer; width: 100%; margin-bottom: 12px;">
+      Oui, désactiver le MFA
+    </button>
+    <a href="{{ url_for('client.dashboard') }}" style="display: block; color: #888; font-size: 14px; text-decoration: none; padding: 8px;">Annuler</a>
+  </form>
+</div>
+{% endblock %}

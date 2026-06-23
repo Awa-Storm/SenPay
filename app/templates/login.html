@@ -1,29 +1,30 @@
 ﻿{% extends "base.html" %}
 
 {% block content %}
-<div class="login-hero">
-  <div class="card-modern">
-    <div class="login-header">
-      <span class="logo-icon" style="font-size: 56px;">🔐</span>
-      <h1>SenPay</h1>
-      <p style="color: #2c3e50;">Paiement mobile sécurisé</p>
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <span class="icon">📱</span>
+        <h1><span>SenPay</span></h1>
+        <p class="sub">Paiement mobile sécurisé</p>
+
+        {% if error %}
+            <div style="background: #fee2e2; padding: 10px; border-radius: 12px; margin-bottom: 16px; font-size: 13px; color: #b91c1c;">
+                ❌ {{ error }}
+            </div>
+        {% endif %}
+
+        <form method="POST">
+            <input type="tel" name="phone" placeholder="Numéro de téléphone" required>
+            <input type="password" name="pin" placeholder="Code PIN" required>
+            <button type="submit" class="btn-primary">Se connecter →</button>
+        </form>
+
+        <div class="footer-links">
+            <p>🔒 Session chiffrée</p>
+            <p style="margin-top: 6px;">
+                Pas encore de compte ? <a href="{{ url_for('auth.register') }}">S'inscrire</a>
+            </p>
+        </div>
     </div>
-
-    {% if error %}
-      <div style="background: #fee2e2; color: #b91c1c; padding: 12px; border-radius: 60px; margin-bottom: 20px;">
-        {{ error }}
-      </div>
-    {% endif %}
-
-    <form method="POST">
-      <input type="tel" name="phone" class="login-input" placeholder="📱 Numéro de téléphone" required>
-      <input type="password" name="pin" class="login-input" placeholder="🔑 Code PIN" required>
-      <button type="submit" class="btn-primary">Se connecter →</button>
-    </form>
-
-    <p style="margin-top: 24px; font-size: 13px; color: #5a6e7a;">
-      Session chiffrée · 3 tentatives max
-    </p>
-  </div>
 </div>
 {% endblock %}
